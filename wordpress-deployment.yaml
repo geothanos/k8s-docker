@@ -1,0 +1,51 @@
+# ===========================
+# WordPress: Deployment
+# ===========================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wordpress
+spec:
+  serviceName: "wordpress"
+  selector:
+    matchLabels:
+      app: wordpress
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress:beta-php8.3-apache
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysql:3306
+        - name: WORDPRESS_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: username
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+          subPath: html
+        - name: wordpress-content-storage
+          mountPath: /var/www/html/wp-content
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wordpress-pv-claim
+      - name: wordpress-content-storage
+        persistentVolumeClaim:
+          claimName: wordpress-content-claim

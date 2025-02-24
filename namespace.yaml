@@ -1,0 +1,7 @@
+# ===========================
+# WordPress-Omeka: Namespace
+# ===========================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wordpress
