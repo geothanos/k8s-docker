@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-omeka-config
+  namespace: wordpress-omeka
+data:
+  wp-config.php: |
+    <?php
+    define( 'DB_NAME', 'wordpress' );
+    define( 'DB_USER', '${DB_USER}' );
+    define( 'DB_PASSWORD', '${DB_PASSWORD}' );
+    define( 'DB_HOST', '${DB_HOST}' );
+    define( 'DB_CHARSET', 'utf8' );
+    define( 'DB_COLLATE', '' );
+    
+    $table_prefix = 'wp_';
+    
+    define( 'WP_DEBUG', false );
+    
+    define('WP_MEMORY_LIMIT', '300M');
+    
+    define('WP_HOME', 'https://k8s-wordomeka.gr');
+    define('WP_SITEURL', 'https://k8s-wordomeka.gr');
+    
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+      $_SERVER['HTTPS'] = 'on';
+    }
+      
+      if ( ! defined( 'ABSPATH' ) ) {
+      define( 'ABSPATH', __DIR__ . '/' );
+    }
+    require_once ABSPATH . 'wp-settings.php';
+  wordpress.conf: |
+    <VirtualHost *:80>
+  
+      ServerName k8s-wordomeka.gr
+      
+      # Directory commands
+      DocumentRoot /var/www/html/wordpress
+      
+      <Directory /var/www/html/wordpress>
+      Options Indexes FollowSymLinks
+      AllowOverride All
+      DirectoryIndex index.php
+      Require all granted
+      </Directory>
+      
+      # Directory commands
+      Alias /repository /var/www/html/omeka
+      <Directory /var/www/html/omeka>
+      AllowOverride All
+      Options FollowSymLinks
+      Require all granted
+      </Directory>
+      
+      #---
+      # Error Logs
+      #---
+      ErrorLog ${APACHE_LOG_DIR}/k8s-error.log
+      CustomLog ${APACHE_LOG_DIR}/k8s-access.log combined
+    
+    </VirtualHost>
+

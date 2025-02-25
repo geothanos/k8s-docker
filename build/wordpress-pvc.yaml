@@ -5,6 +5,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: wordpress-pv-claim
+  namespace: wordpress-omeka
 spec:
   accessModes:
     - ReadWriteMany

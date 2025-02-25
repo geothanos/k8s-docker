@@ -4,7 +4,8 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: wordpress
+  name: wordpress-omeka
+  namespace: wordpress-omeka
 spec:
   serviceName: "wordpress"
   selector:
@@ -18,7 +19,7 @@ spec:
     spec:
       containers:
       - name: wordpress
-        image: wordpress:beta-php8.3-apache
+        image: wordpress-omeka:latest
         env:
         - name: WORDPRESS_DB_HOST
           value: mysql:3306
@@ -33,7 +34,10 @@ spec:
               name: mysql-secret
               key: password
         - name: WORDPRESS_DB_NAME
-          value: wordpress
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: db-wordpress
         ports:
         - containerPort: 80
         volumeMounts:
